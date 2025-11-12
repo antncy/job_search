@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "job_search": {
+        "type": "stdio",
+        "command": "/home/ubuntu/.pyenv/shims/uv",
+        "args": [
+              "--directory",
+              "/home/ubuntu/mcp/embed_test",
+              "run",
+              "main.py"
+        ]
+    }
+  }
+}
