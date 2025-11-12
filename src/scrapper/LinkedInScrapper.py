@@ -1,15 +1,14 @@
 from dataclasses import dataclass
-import logging
 from typing import List, Optional
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 from urllib.parse import quote
+from loguru import logger
 
+import aiohttp
 import requests
-import time
 import json
-
 
 
 @dataclass
@@ -67,6 +66,7 @@ class LinkedInJobsScrapper:
         return url.split("?")[0] if "?" in url else url
 
     def _extract_job_data(self, job_card: BeautifulSoup) -> Optional[JobData]:
+        """Extract job data from a job card."""
         try:
             title = job_card.find("h3", class_="base-search-card__title").text.strip()
             company = job_card.find(
@@ -80,7 +80,7 @@ class LinkedInJobsScrapper:
             )
             posted_date = job_card.find("time", class_="job-search-card__listdate")
             posted_date = posted_date.text.strip() if posted_date else "N/A"
-            # job_discription = job_card.find("p", class_="job-search-card__snippet")
+            job_discription = self._get_job_description(job_link)
 
             return JobData(
                 title=title,
@@ -88,13 +88,14 @@ class LinkedInJobsScrapper:
                 location=location,
                 job_link=job_link,
                 posted_date=posted_date,
-                # job_description=job_discription
+                job_description=job_discription
             )
         except Exception as e:
-            logging.error(f"Failed to extract job data: {str(e)}")
+            logger.error(f"Failed to extract job data: {str(e)}")
             return None
 
     def _fetch_job_page(self, url: str) -> BeautifulSoup:
+        """Convert url to plain text, then to BeautifulSoup object."""
         try:
             response = self.session.get(url, headers=ScraperConfig.HEADERS)
             if response.status_code != 200:
@@ -102,12 +103,24 @@ class LinkedInJobsScrapper:
                     f"Failed to fetch data: Status code {response.status_code}"
                 )
             return BeautifulSoup(response.text, "html.parser")
-        except requests.RequestException as e:
+        except aiohttp.ClientError as e:
             raise RuntimeError(f"Request failed: {str(e)}")
 
+
+    def _get_job_description(self, job_url: str) -> str:
+        job_page_soup = self._fetch_job_page(job_url)
+        job_description_section = job_page_soup.find("section", class_="show-more-less-html")
+        if job_description_section:
+            job_description = job_description_section.get_text(strip=True)
+            job_description = job_description.replace("Show moreShow less", "").strip()
+        else:
+            job_description = "N/A"
+        return job_description
+    
     def scrape_jobs(self, keywords: str, location: str, appear_time: str, max_jobs: int=50) -> List[JobData]:
         all_jobs = []
         start = 0
+
         while len(all_jobs) < max_jobs:
             try:
                 url = self._build_search_url(keywords, location, appear_time, start)
@@ -115,29 +128,14 @@ class LinkedInJobsScrapper:
                 job_cards = soup.find_all("div", class_="base-card")
                 if not job_cards:
                     break
+                
 
                 for job_card in job_cards:
-                    job_data = self._extract_job_data(job_card)
-
-                    if job_data:
-                        job_url = job_data.job_link
-                        job_page_soup = self._fetch_job_page(job_url)
-                        job_description_section = job_page_soup.find("section", class_="show-more-less-html")
-                        if job_description_section:
-                            job_description = job_description_section.get_text(strip=True)
-                            job_description = job_description.replace("Show moreShow less", "").strip()
-                        else:
-                            job_description = "N/A"
-
-                        job_data.job_description = job_description
-                        
-                        all_jobs.append(job_data)
-                        if len(all_jobs) >= max_jobs:
-                            break
+                    all_jobs.append(self._extract_job_data(job_card))
+                
                 start += ScraperConfig.JOBS_PER_PAGE
-                time.sleep(3)
             except Exception as e:
-                logging.error(f"Scrapping error: {str(e)}")
+                logger.error(f"Scrapping error: {str(e)}")
                 break
         return all_jobs[:max_jobs]
     
@@ -154,7 +152,7 @@ def main():
         "keywords": "Data Scientist",
         "location": "Paris",
         "appear_time": "r3600", # last 24 hours
-        "max_jobs": 3,
+        "max_jobs": 20,
     }
 
     scraper = LinkedInJobsScrapper()
