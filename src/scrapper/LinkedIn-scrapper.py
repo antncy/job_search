@@ -19,7 +19,7 @@ class JobData:
     location: str
     job_link: str
     posted_date: str
-    # job_description: str
+    job_description: str = ""
     # To add additional fields (easy_apply, seniority level, employment_type, job_function)
 
 class ScraperConfig:
@@ -118,7 +118,19 @@ class LinkedInJobsScrapper:
 
                 for job_card in job_cards:
                     job_data = self._extract_job_data(job_card)
+
                     if job_data:
+                        job_url = job_data.job_link
+                        job_page_soup = self._fetch_job_page(job_url)
+                        job_description_section = job_page_soup.find("section", class_="show-more-less-html")
+                        if job_description_section:
+                            job_description = job_description_section.get_text(strip=True)
+                            job_description = job_description.replace("Show moreShow less", "").strip()
+                        else:
+                            job_description = "N/A"
+
+                        job_data.job_description = job_description
+                        
                         all_jobs.append(job_data)
                         if len(all_jobs) >= max_jobs:
                             break
