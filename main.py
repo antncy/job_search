@@ -7,7 +7,7 @@ load_dotenv()
 mcp = FastMCP("Job Scraper MCP")
 
 @mcp.tool()
-def scrape_jobs(keywords: str, location: str, appear_time: int, max_jobs: int=50):
+def scrape_jobs(keywords: str, location: str, appear_time: int, other_job_filters: str, max_jobs: int=50):
     """
     Scrape job listings from LinkedIn base on provided keywords, location, and appearance time.
 
@@ -16,6 +16,7 @@ def scrape_jobs(keywords: str, location: str, appear_time: int, max_jobs: int=50
         location (str): Location to filter job listings.
         appear_time (int): Time frame in hours for job appearance (e.g., last 24 hours).
         max_jobs (int, optional): Maximun number of jobs to scrape.
+        other_job_filters (str): Additional filters for job search.
     
     Returns:
         A list of dictionaries containing job data.

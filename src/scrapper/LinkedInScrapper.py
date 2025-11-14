@@ -1,25 +1,13 @@
-from dataclasses import dataclass
 from typing import List, Optional
 from bs4 import BeautifulSoup
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 from urllib.parse import quote
 from loguru import logger
-
+from src.scrapper.JobData import JobData
 import aiohttp
 import requests
 import json
-
-
-@dataclass
-class JobData:
-    title: str
-    company: str
-    location: str
-    job_link: str
-    posted_date: str
-    job_description: str = ""
-    # To add additional fields (easy_apply, seniority level, employment_type, job_function)
 
 class ScraperConfig:
     JOBS_PER_PAGE = 25
