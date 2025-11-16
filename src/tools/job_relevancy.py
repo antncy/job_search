@@ -1,9 +1,6 @@
-import os
-import asyncio
-
 from dotenv import load_dotenv
 from src.tools.llm_query import llm_retrieve
-from src.scrapper.JobData import JobData
+from src.data_structures.JobData import JobData
 
 load_dotenv()
 
