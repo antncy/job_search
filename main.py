@@ -3,6 +3,7 @@ import asyncio
 
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
+from tqdm.asyncio import tqdm
 from src.scrapers import LinkedInScraper
 from src.tools.job_relevancy import check_job_relevancy
 
@@ -36,9 +37,11 @@ async def scrape_jobs(job_title: str, location: str, appear_time: int, max_jobs:
     jobs = scraper.scrape_jobs(**params)
 
     filtered_jobs = []
-    for job in jobs:
-        is_relevant = await check_job_relevancy(job, other_job_filters)
-        if is_relevant:
+    tasks = [check_job_relevancy(job, other_job_filters) for job in jobs]
+    check_results = await tqdm.gather(*tasks, desc="Check job relevancy")
+
+    for job, result in zip(jobs, check_results):
+        if result:
             filtered_jobs.append(job)
     scraper.save_results(filtered_jobs)
 

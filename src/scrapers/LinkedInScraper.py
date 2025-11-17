@@ -1,8 +1,7 @@
 from typing import List, Optional
 from bs4 import BeautifulSoup
 from loguru import logger
-from src.data_structures.JobData import JobData
-from src.data_structures.ScraperConfig import ScraperConfig
+from src.data_structures import JobData, ScraperConfig
 from src.scrapers.JobsScraper import JobScraper
 import aiohttp
 import json
