@@ -1,9 +1,9 @@
 from typing import List, Optional
 from bs4 import BeautifulSoup
 from loguru import logger
-from src.data_structures import JobData, ScraperConfig
+from src.data_structures.JobData import JobData
+from src.data_structures.ScraperConfig import ScraperConfig
 from src.scrapers.JobsScraper import JobScraper
-import aiohttp
 import json
 
 class LinkedInJobsScrapper(JobScraper):
@@ -39,19 +39,6 @@ class LinkedInJobsScrapper(JobScraper):
         except Exception as e:
             logger.error(f"Failed to extract job data: {str(e)}")
             return None
-
-    def _fetch_job_page(self, url: str) -> BeautifulSoup:
-        """Convert url to plain text, then to BeautifulSoup object."""
-        try:
-            response = self.session.get(url, headers=ScraperConfig.HEADERS)
-            if response.status_code != 200:
-                raise RuntimeError(
-                    f"Failed to fetch data: Status code {response.status_code}"
-                )
-            return BeautifulSoup(response.text, "html.parser")
-        except aiohttp.ClientError as e:
-            raise RuntimeError(f"Request failed: {str(e)}")
-
 
     def _get_job_description(self, job_url: str) -> str:
         job_page_soup = self._fetch_job_page(job_url)
@@ -97,7 +84,7 @@ def main():
     params = {
         "keywords": "Data Scientist",
         "location": "Paris",
-        "appear_time": "r3600", # last 24 hours
+        "appear_time": "r3600", # last hours
         "max_jobs": 20,
     }
 

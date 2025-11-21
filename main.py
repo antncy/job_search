@@ -1,6 +1,3 @@
-import os
-import asyncio
-
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 from tqdm.asyncio import tqdm
@@ -49,4 +46,3 @@ async def scrape_jobs(job_title: str, location: str, appear_time: int, max_jobs:
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
-

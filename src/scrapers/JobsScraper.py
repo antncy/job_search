@@ -1,4 +1,3 @@
-import requests
 from typing import Optional
 from abc import ABC, abstractmethod
 from bs4 import BeautifulSoup
@@ -6,6 +5,9 @@ from urllib3 import Retry
 from urllib.parse import quote
 from requests.adapters import HTTPAdapter
 from src.data_structures.JobData import JobData
+from src.data_structures.ScraperConfig import ScraperConfig
+import requests
+import aiohttp
 
 class JobScraper(ABC):
     """Base class for job scrapers."""
@@ -34,6 +36,18 @@ class JobScraper(ABC):
     
     def _clean_job_url(self, url: str) -> str:
         return url.split("?")[0] if "?" in url else url
+    
+    def _fetch_job_page(self, url: str) -> BeautifulSoup:
+        """Convert url to plain text, then to BeautifulSoup object."""
+        try:
+            response = self.session.get(url, headers=ScraperConfig.HEADERS)
+            if response.status_code != 200:
+                raise RuntimeError(
+                    f"Failed to fetch data: Status code {response.status_code}"
+                )
+            return BeautifulSoup(response.text, "html.parser")
+        except aiohttp.ClientError as e:
+            raise RuntimeError(f"Request failed: {str(e)}")
     
     @abstractmethod
     def _extract_job_data(self, job_card: BeautifulSoup) -> Optional[JobData]:
