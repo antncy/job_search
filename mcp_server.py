@@ -1,7 +1,7 @@
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 from tqdm.asyncio import tqdm
-from src.scrapers import LinkedInScraper
+from src.scrapers.LinkedInScraper import LinkedInJobsScrapper
 from src.tools.job_relevancy import check_job_relevancy
 
 load_dotenv()
@@ -30,7 +30,7 @@ async def scrape_jobs(job_title: str, location: str, appear_time: int, max_jobs:
         "max_jobs": max_jobs,
     }
 
-    scraper = LinkedInScraper.LinkedInJobsScrapper()
+    scraper = LinkedInJobsScrapper()
     jobs = scraper.scrape_jobs(**params)
 
     filtered_jobs = []

@@ -5,7 +5,7 @@
         "command": "/home/ubuntu/mcp/embed_test/.venv/bin/uv",
         "args": [
               "--directory",
-              "/home/ubuntu/mcp/embed_test/src/mcp",
+              "/home/ubuntu/mcp/embed_test",
               "run",
               "mcp_server.py"
         ]
