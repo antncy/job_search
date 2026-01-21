@@ -18,10 +18,22 @@ def close_connection(conn, cursor) -> None:
     conn.close()
 
 def write_to_db(cursor, data: list[JobData]):
+    def clean_posted_date(posted_date):
+        from datetime import datetime
+        if posted_date == "N/A" or not posted_date:
+            return datetime.now().strftime('%Y-%m-%d')  # Use today's date
+        return posted_date
+    
+    def clean_description(description):
+        if description == "N/A":
+            return ""
+        # Truncate to 1000 characters to fit database column
+        return description[:1000] if description else ""
+    
     cursor.executemany(
         "INSERT INTO jobs_list (title, company, location, job_link, posted_date, job_description, search_date)"
         "VALUES(%s, %s, %s, %s, %s, %s, CURDATE())",
-        [(job.title, job.company, job.location, job.job_link, job.posted_date, job.job_description) for job in data]
+        [(job.title, job.company, job.location, job.job_link, clean_posted_date(job.posted_date), clean_description(job.job_description)) for job in data]
     )
 
 def query_db(cursor, query):

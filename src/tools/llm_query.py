@@ -7,14 +7,14 @@ import asyncio
 load_dotenv()
 
 model_settings = {
-    "model":os.environ.get("MODEL_NAME"),
+    "model":os.environ.get("JUDGE_MODEL"),
     "temperature": 0.2,
     "timeout": 60,
     "max_tokens": 1024
 }
 
 async def llm_retrieve(prompt: str) -> str:
-    client = AsyncOpenAI(api_key=os.environ.get("API_KEY"), base_url=os.environ.get("BASE_URL"))
+    client = AsyncOpenAI(api_key=os.environ.get("JUDGE_API_KEY"), base_url=os.environ.get("JUDGE_BASE_URL"))
 
     response = await client.chat.completions.create(
         messages=[

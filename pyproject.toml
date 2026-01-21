@@ -8,6 +8,7 @@ dependencies = [
     "aiohttp>=3.13.2",
     "apache-airflow>=3.1.5",
     "bs4>=0.0.2",
+    "graphviz>=0.21",
     "linkedin-jobs-scraper>=5.0.2",
     "loguru>=0.7.3",
     "mcp>=1.21.0",

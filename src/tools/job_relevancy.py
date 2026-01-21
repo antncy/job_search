@@ -16,6 +16,5 @@ async def check_job_relevancy(job: JobData, job_requirements: str) -> bool:
 
     Answer with "True" or "False" only.
     """
-    print("Yes")
     response = await llm_retrieve(prompt)
     return response.strip().lower() == "true"

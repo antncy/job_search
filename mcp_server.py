@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from tqdm.asyncio import tqdm
 from src.scrapers.LinkedInScraper import LinkedInJobsScrapper
 from src.tools.job_relevancy import check_job_relevancy
+from src.tools.database_access import create_connection, write_to_db, close_connection
+
 
 load_dotenv()
 
@@ -42,6 +44,10 @@ async def scrape_jobs(job_title: str, location: str, appear_time: int, max_jobs:
             filtered_jobs.append(job)
     scraper.save_results(filtered_jobs)
 
+    conn, cursor = create_connection("embed_test")
+    write_to_db(cursor, filtered_jobs)
+    conn.commit()
+    close_connection(conn, cursor)
     return [vars(job) for job in filtered_jobs]
 
 if __name__ == "__main__":

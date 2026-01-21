@@ -16,10 +16,12 @@ with DAG(
     default_args=default_args,
     description="Run job scraper every 3 hours",
     schedule=timedelta(hours=3),  # Every 3 hours
-    start_date=datetime(2026, 1, 1),
+    start_date=datetime(2024, 1, 1),
     catchup=False,
 ) as dag:
     run_scraper = BashOperator(
         task_id="run_scraper",
-        bash_command="python /home/ubuntu/mcp/embed_test/main.py",
+        bash_command="cd /home/ubuntu/mcp/embed_test && python src/apache/job_scraping.py",
     )
+
+    run_scraper
